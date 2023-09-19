@@ -52,7 +52,7 @@
         if(notas.value.length < 6)
             notas.value.push({x: 0, y:0, texto: ''})
         else
-            alert("IMPOSSIVEL ADICIONAR MAIS NOTAS")
+            alert("NÃO É POSSIVEL ADICIONAR MAIS NOTAS")
     };
     function excluirNota(index: number){
       /*   if(notas.value.length > 1) */
@@ -78,14 +78,15 @@
 </template>
 
 <style scoped>
+ 
   .container {
     position: relative;
     display: flex;
     flex-wrap: wrap;
     justify-content: center;
     align-items: center;
-    /* height: 100vh;
-    background-color: #f0f0f0; */
+     /*   height: 100vh;
+ background-color: #f0f0f0;*/
   }
 
   .notinhas {

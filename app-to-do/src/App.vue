@@ -2,34 +2,158 @@
   import { ref, onMounted, watch } from 'vue';
   import  Arrastavel  from "./components/Arrastavel.vue"
 
-  const todos = ref<Array<{ todo: string; done: boolean }>>([]);
+  const todos = ref<Array<{id: number; todoText: string; done: boolean }>>([]);
   const texto = ref("");
 
-  function removerTodo(index: number){
+  const endpoint =  'http://localhost:3000/todos';
+  
+  onMounted(() => {        
+    getTodo();
+  });
+  
+  //DELETE
+  const removerTodo = async (index: number, id: number) => {   
+    try {
+      if(todos.value[index].done){ 
+        return;
+      }
+
+      const res = await fetch(`${endpoint}/${id}`, {
+        method: 'delete'
+      });
+
+    /*     console.log(id);
+        console.log(todos.value[index])
+        console.log("res:", res); */
+      
+      if(res.ok){
+        //todos.value = todos.value.filter((_, i) => i !== index);
+        todos.value.splice(index,1);
+        console.log("SUCESSO ! DELETE");
+       }else
+        console.log("ERRO ! DELETE");
+
+    }catch (error) {
+      console.log("ERRO !", error);
+    } 
+  };
+    
+ 
+
+/*   //PATCH
+  const alterarTodo = async (index: number,id: number) =>{
+    const novoState = !todos.value[index].done;
+    
+    try {
+      const res = await fetch(`${endpoint}/${id}`, {
+          method: 'patch',
+          headers: {"Content-Type":"application/json"},
+          body: JSON.stringify({done: novoState})
+      });
+      console.log(res)
+      if(res.ok){
+        todos.value[index].done = novoState;
+        console.log("SUCESSO ! PATCH");
+          
+        }else{
+          console.log("ERRO ! PATCH");
+        
+        }
+    } catch (error) {
+      console.log("ERRO !", error);
+    }
+  }; */
+
+
+  //GET
+  const getTodo = async () => {
+    try{
+      const res = await fetch(endpoint);
+      if(res.ok){
+        const data = await res.json()
+        todos.value = data;
+        console.log("SUCESSO ! GET");  
+      }else{
+        console.log("ERRO ! GET");  
+      }
+    }catch(error){
+      console.log("ERRO:", error);  
+    }
+  };   
+
+  //POST
+  const adicionarTodo = async () =>{
+    
+    if(todos.value.length < 8){
+      const novoId = Date.now();
+
+      if(texto.value.trim() === ""){
+        return;
+      } 
+      const novoTodo = {
+        id: novoId, 
+        todoText: texto.value,
+        done: false,
+      };
+
+      todos.value.unshift(novoTodo);
+
+      texto.value = "";
+      
+      try {
+        const res = await fetch(endpoint, {
+          method: 'post',
+          headers: {'Content-type': 'application/json'},
+          body: JSON.stringify(novoTodo)
+        });
+        if(res.ok){
+          console.log("SUCESSO ! POST")
+          await getTodo();
+          
+        }else{
+          console.log("ERRO ! POST")
+        }
+      } catch (error) {
+         console.log("ERRO !",error)
+      }
+    }else{
+      alert("NÃO É POSSIVEL ADICIONAR MAIS TO-DO'S");
+    }
+  }; 
+
+/*   function removerTodo(index: number){
     if(!todos.value[index].done)
       todos.value.splice(index,1);
-  }
+  };
+   */
   function alterarTodo(index: number){
-    console.log(todos.value[index].done);
+   // console.log(todos.value[index].done);
     todos.value[index].done = !todos.value[index].done;
   }
 
-  function adicionarTodo(){
-    if(texto.value.trim() === ""){
-      return;
-    }
-    todos.value.unshift({
-      todo: texto.value,
-      done: false,
-    
-    });
-    texto.value = "";
-  }
+  /* function adicionarTodo(){
+    if(todos.value.length < 8){
 
+        if(texto.value.trim() === ""){
+        return;
+      }
+      const novoId = Date.now();
 
-    const todoDone = (todoDone:boolean) => {
-        return todoDone ? 'Doing':'To do'
-    };
+      todos.value.unshift({
+        id: novoId,
+        todoText: texto.value,
+        done: false,
+      });
+
+      texto.value = "";
+    }else 
+      alert("NÃO É POSSIVEL ADICIONAR MAIS TO-DO'S");
+  }; */
+
+  const todoDone = (todoDone:boolean) => {
+    return todoDone ? 'Doing':'To do'
+  };
+
 </script>
 
 
@@ -57,10 +181,10 @@
        <div class="list-todos" v-show="todos.length !== 0">
           <div v-for="(todo,index) in todos" :key="index" :class="`todo-item ${todo.done && 'done'}`">
             <div class="todo-conteudo">
-              {{ todo.todo }}
+              {{ todo.todoText }}
             </div>
             <button @click="alterarTodo(index)" :class="{'doing': todo.done , 'todo': !todo.done}" >{{ todoDone(todo.done) }}</button>
-            <button @click="removerTodo(index)" :class="todo.done ? 'done' : 'todo'">Done</button>
+            <button @click="removerTodo(index, todo.id)" :class="todo.done ? 'done' : 'todo'">Done</button>
          </div>
         </div>
   
@@ -77,6 +201,7 @@
   flex-direction: column;
   align-items: center;
   padding: 20px;
+  height: 150vh;
   background-color: #f4f4f4;
 }
 
