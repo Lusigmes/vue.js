@@ -17,12 +17,12 @@ yarn build
 
 ## run serve
 ```
-run run serve
+npm run serve
 ```
 
 ## run backend
 ```
-run run backend
+npm run backend
 ```
 ### Customize configuration
 See [Configuration Reference](https://cli.vuejs.org/config/).
