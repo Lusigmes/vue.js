@@ -1,6 +1,6 @@
 # Estudo de vue.js 
 
-## aplicações criadas
+## Aplicações criadas
 
 ### 1 - Calculadora
 ### 2 - Lista de To Do
